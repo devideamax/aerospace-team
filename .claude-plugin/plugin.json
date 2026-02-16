@@ -1,0 +1,30 @@
+{
+  "name": "space-engineering",
+  "version": "1.0.0",
+  "description": "12-skill space engineering pack: propulsion, orbital mechanics, structures, thermal, satellite comms, power systems, GNC, payloads, mission architecture, ground systems, launch operations, and space environment. Synthetic NASA for Claude Code.",
+  "author": {
+    "name": "IDEAMAX Skills Factory",
+    "url": "https://ideamax.eu"
+  },
+  "skills": [
+    "propulsion",
+    "orbital-mechanics",
+    "structural",
+    "thermal",
+    "satellite-comms",
+    "power-systems",
+    "gnc",
+    "payload-specialist",
+    "mission-architect",
+    "ground-systems",
+    "launch-operations",
+    "space-environment"
+  ],
+  "commands": [
+    "mission-design",
+    "vehicle-comparison",
+    "launch-cost",
+    "orbit-plan",
+    "link-budget"
+  ]
+}

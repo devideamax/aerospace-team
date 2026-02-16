@@ -1,0 +1,195 @@
+{
+  "_meta": {
+    "last_updated": "2026-02-15",
+    "update_interval_days": 90,
+    "source": "Public launch provider data, industry reports",
+    "note": "Run 'python sync_data.py' to refresh market data via web search"
+  },
+  "vehicles": {
+    "falcon9": {
+      "name": "Falcon 9 Block 5",
+      "manufacturer": "SpaceX",
+      "launch_cost_m": 67,
+      "payload_leo_kg": 22800,
+      "payload_gto_kg": 8300,
+      "payload_mars_kg": 4020,
+      "reusable": true,
+      "max_reuses": 20,
+      "flights_2025": 90,
+      "first_flight": "2010",
+      "status": "active"
+    },
+    "falcon_heavy": {
+      "name": "Falcon Heavy",
+      "manufacturer": "SpaceX",
+      "launch_cost_m": 97,
+      "payload_leo_kg": 63800,
+      "payload_gto_kg": 26700,
+      "payload_mars_kg": 16800,
+      "reusable": true,
+      "max_reuses": 10,
+      "flights_2025": 5,
+      "first_flight": "2018",
+      "status": "active"
+    },
+    "starship": {
+      "name": "Starship + Super Heavy",
+      "manufacturer": "SpaceX",
+      "launch_cost_m": 10,
+      "payload_leo_kg": 150000,
+      "payload_gto_kg": 21000,
+      "payload_mars_kg": 100000,
+      "reusable": true,
+      "max_reuses": 100,
+      "flights_2025": 6,
+      "first_flight": "2023",
+      "status": "active_development",
+      "note": "Cost is projected target, not current"
+    },
+    "electron": {
+      "name": "Electron",
+      "manufacturer": "Rocket Lab",
+      "launch_cost_m": 7.5,
+      "payload_leo_kg": 300,
+      "payload_gto_kg": 0,
+      "payload_sso_kg": 200,
+      "reusable": false,
+      "flights_2025": 15,
+      "first_flight": "2017",
+      "status": "active"
+    },
+    "neutron": {
+      "name": "Neutron",
+      "manufacturer": "Rocket Lab",
+      "launch_cost_m": 55,
+      "payload_leo_kg": 13000,
+      "payload_gto_kg": 1500,
+      "reusable": true,
+      "first_flight": "2026",
+      "status": "development"
+    },
+    "ariane6": {
+      "name": "Ariane 6 (A64)",
+      "manufacturer": "ArianeGroup",
+      "launch_cost_m": 115,
+      "payload_leo_kg": 21600,
+      "payload_gto_kg": 11500,
+      "reusable": false,
+      "flights_2025": 6,
+      "first_flight": "2024",
+      "status": "active"
+    },
+    "vulcan": {
+      "name": "Vulcan Centaur",
+      "manufacturer": "ULA",
+      "launch_cost_m": 110,
+      "payload_leo_kg": 27200,
+      "payload_gto_kg": 7300,
+      "reusable": false,
+      "flights_2025": 8,
+      "first_flight": "2024",
+      "status": "active"
+    },
+    "new_glenn": {
+      "name": "New Glenn",
+      "manufacturer": "Blue Origin",
+      "launch_cost_m": 68,
+      "payload_leo_kg": 45000,
+      "payload_gto_kg": 13600,
+      "reusable": true,
+      "first_flight": "2025",
+      "status": "active"
+    },
+    "sls": {
+      "name": "SLS Block 1",
+      "manufacturer": "NASA/Boeing",
+      "launch_cost_m": 2200,
+      "payload_leo_kg": 95000,
+      "payload_tli_kg": 27000,
+      "reusable": false,
+      "flights_2025": 0,
+      "first_flight": "2022",
+      "status": "active",
+      "note": "Cost includes ground ops. 1 flight per 2 years."
+    },
+    "long_march_5": {
+      "name": "Long March 5",
+      "manufacturer": "CASC",
+      "launch_cost_m": 60,
+      "payload_leo_kg": 25000,
+      "payload_gto_kg": 14000,
+      "reusable": false,
+      "first_flight": "2016",
+      "status": "active"
+    },
+    "h3": {
+      "name": "H3",
+      "manufacturer": "JAXA/MHI",
+      "launch_cost_m": 50,
+      "payload_leo_kg": 6500,
+      "payload_gto_kg": 3500,
+      "payload_sso_kg": 4000,
+      "reusable": false,
+      "first_flight": "2024",
+      "status": "active"
+    }
+  },
+  "engines": {
+    "merlin_1d": {
+      "name": "Merlin 1D+",
+      "manufacturer": "SpaceX",
+      "thrust_vac_kn": 981,
+      "thrust_sl_kn": 845,
+      "isp_vac_s": 311,
+      "isp_sl_s": 282,
+      "twr": 198,
+      "propellant": "LOX/RP-1",
+      "cycle": "Gas Generator",
+      "status": "flight_proven"
+    },
+    "raptor_3": {
+      "name": "Raptor 3",
+      "manufacturer": "SpaceX",
+      "thrust_vac_kn": 2200,
+      "thrust_sl_kn": 1900,
+      "isp_vac_s": 380,
+      "isp_sl_s": 350,
+      "twr": 107,
+      "propellant": "LOX/CH4",
+      "cycle": "Full-Flow Staged Combustion",
+      "status": "flight_proven"
+    },
+    "be4": {
+      "name": "BE-4",
+      "manufacturer": "Blue Origin",
+      "thrust_vac_kn": 2400,
+      "isp_vac_s": 340,
+      "twr": 80,
+      "propellant": "LOX/CH4",
+      "cycle": "Ox-Rich Staged Combustion",
+      "status": "flight_proven"
+    },
+    "rs25": {
+      "name": "RS-25 (SSME)",
+      "manufacturer": "Aerojet Rocketdyne",
+      "thrust_vac_kn": 2280,
+      "thrust_sl_kn": 1860,
+      "isp_vac_s": 452,
+      "isp_sl_s": 366,
+      "twr": 73,
+      "propellant": "LOX/LH2",
+      "cycle": "Staged Combustion",
+      "status": "flight_proven"
+    },
+    "rl10c": {
+      "name": "RL-10C",
+      "manufacturer": "Aerojet Rocketdyne",
+      "thrust_vac_kn": 110,
+      "isp_vac_s": 453.8,
+      "twr": 61,
+      "propellant": "LOX/LH2",
+      "cycle": "Expander",
+      "status": "flight_proven"
+    }
+  }
+}
