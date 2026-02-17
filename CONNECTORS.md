@@ -9,6 +9,17 @@ python shared/tools/script_name.py subcommand --arg value
 
 All tools output JSON for easy parsing.
 
+### Tool Reference
+
+| Tool | Subcommands | Purpose |
+|------|-------------|---------|
+| `trajectory.py` | `hohmann`, `tsiolkovsky`, `inverse`, `gravity-loss`, `delta-v-budget` | Trajectory analysis, delta-v calculations |
+| `cost_estimator.py` | `engine`, `vehicle`, `launch`, `compare` | Cost estimation and vehicle comparison |
+| `geometry.py` | `tank`, `fairing`, `vehicle-size` | Tank sizing, fairing checks, vehicle estimates |
+| `plot.py` | `hohmann-plot`, `delta-v-waterfall`, `trade-matrix` | Visualizations (requires matplotlib) |
+| `staging.py` | `optimize` | Staging optimization with SLSQP (requires scipy) |
+| `timeline.py` | `plan`, `gantt` | Mission timeline generation and Gantt charts |
+
 ## Shared Data Layer
 
 All skills can read from `shared/data/*.json`:

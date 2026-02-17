@@ -65,9 +65,25 @@ A "Synthetic NASA" for Claude Code — 12 engineering specialists that give Clau
 Python tools in `shared/tools/` are available to all 12 skills:
 
 ```bash
+# Core tools
 python shared/tools/trajectory.py hohmann Earth Mars          # Earth-Mars Hohmann transfer
 python shared/tools/cost_estimator.py launch --payload-kg 150 --orbit LEO  # Launch cost
 python shared/tools/geometry.py tank --propellant-kg 5000 --fuel lox-rp1 --diameter 3.66  # Tank sizing
+
+# Visualization (requires matplotlib)
+python shared/tools/plot.py hohmann-plot Earth Mars --output transfer.png       # Orbit diagram
+python shared/tools/plot.py delta-v-waterfall LEO Mars --output budget.png      # Delta-v breakdown
+python shared/tools/plot.py trade-matrix --vehicles falcon9 starship ariane6    # Vehicle comparison
+
+# Staging optimizer (requires scipy)
+python shared/tools/staging.py optimize --delta-v 9.4 --stages 2 --isp 282,348 \
+  --structural-fraction 0.06,0.08 --payload-kg 22800                           # GLOW optimization
+python shared/tools/staging.py optimize --delta-v 9.4 --stages 2 \
+  --engine merlin_1d,rl10c --payload-kg 5000                                   # Engine-based sizing
+
+# Mission timeline
+python shared/tools/timeline.py plan --launch-date 2027-03-15 --destination Mars   # Phase timeline
+python shared/tools/timeline.py gantt --launch-date 2027-03-15 --destination Mars   # Gantt chart
 ```
 
 ## Shared Data
