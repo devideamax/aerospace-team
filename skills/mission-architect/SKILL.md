@@ -105,9 +105,9 @@ When you trigger this skill, I need enough to anchor the architecture. Without a
 | **trajectory.py** | `python shared/tools/trajectory.py hohmann Earth Mars` | Hohmann transfers, delta-v budgets, orbit parameters |
 | **cost_estimator.py** | `python shared/tools/cost_estimator.py launch --payload-kg 500 --orbit LEO` | TRANSCOST launch costs, vehicle comparison |
 | **plot.py** | `python shared/tools/plot.py trade-matrix --vehicles falcon9 starship` | Vehicle comparison heatmap |
-| **staging.py** | `python shared/tools/staging.py optimize --payload-kg 5000 --orbit LEO --stages 2` | Staging optimization, mass ratio splits, payload fraction |
-| **timeline.py** | `python shared/tools/timeline.py plan --mission LEO-SAR --duration-years 5` | Mission phase timeline with milestones |
-| **timeline.py** | `python shared/tools/timeline.py gantt --mission LEO-SAR` | Gantt chart for mission phases |
+| **staging.py** | `python shared/tools/staging.py optimize --delta-v 9.4 --stages 2 --isp 282,348 --structural-fraction 0.06,0.08 --payload-kg 5000` | Staging optimization, mass ratio splits, payload fraction |
+| **timeline.py** | `python shared/tools/timeline.py plan --launch-date 2027-03-15 --destination Mars` | Mission phase timeline with milestones |
+| **timeline.py** | `python shared/tools/timeline.py gantt --launch-date 2027-03-15 --destination Mars` | Gantt chart for mission phases |
 | *All formulas* | — | Additional calculations use formulas embedded in this SKILL.md |
 
 ### Shared Data (in `shared/` — pack-level)

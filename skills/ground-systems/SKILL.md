@@ -84,7 +84,7 @@ When you trigger this skill, I'll work with whatever you give me — but the mor
 | Tool | Command Example | What It Does |
 |------|----------------|-------------|
 | **trajectory.py** | `python shared/tools/trajectory.py hohmann Earth Mars` | Hohmann transfers, delta-v budgets, orbit parameters |
-| **timeline.py** | `python shared/tools/timeline.py gantt --mission LEO-SAR` | Gantt chart for mission phases |
+| **timeline.py** | `python shared/tools/timeline.py gantt --launch-date 2027-03-15 --destination Mars` | Gantt chart for mission phases |
 | *All formulas* | — | Additional calculations use formulas embedded in this SKILL.md |
 
 ### Shared Data (in `shared/` — pack-level)

@@ -85,9 +85,9 @@ When you trigger this skill, I'll work with whatever you give me — but the mor
 | **trajectory.py** | `python shared/tools/trajectory.py hohmann Earth Mars` | Hohmann transfers, delta-v budgets, orbit parameters |
 | **cost_estimator.py** | `python shared/tools/cost_estimator.py launch --payload-kg 500 --orbit LEO` | TRANSCOST launch costs, vehicle comparison |
 | **geometry.py** | `python shared/tools/geometry.py tank --propellant-kg 5000 --fuel lox-rp1 --diameter 3.66` | Tank sizing, fairing fit check, vehicle geometry |
-| **timeline.py** | `python shared/tools/timeline.py plan --mission LEO-SAR --duration-years 5` | Mission phase timeline with milestones |
-| **timeline.py** | `python shared/tools/timeline.py gantt --mission LEO-SAR` | Gantt chart for mission phases |
-| **staging.py** | `python shared/tools/staging.py optimize --payload-kg 5000 --orbit LEO --stages 2` | Staging optimization, mass ratio splits, payload fraction |
+| **timeline.py** | `python shared/tools/timeline.py plan --launch-date 2027-03-15 --destination Mars` | Mission phase timeline with milestones |
+| **timeline.py** | `python shared/tools/timeline.py gantt --launch-date 2027-03-15 --destination Mars` | Gantt chart for mission phases |
+| **staging.py** | `python shared/tools/staging.py optimize --delta-v 9.4 --stages 2 --isp 282,348 --structural-fraction 0.06,0.08 --payload-kg 5000` | Staging optimization, mass ratio splits, payload fraction |
 | *All formulas* | — | Additional calculations use formulas embedded in this SKILL.md |
 
 ### Shared Data (in `shared/` — pack-level)

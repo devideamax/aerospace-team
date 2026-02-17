@@ -79,9 +79,9 @@ You never hand-wave orbital parameters. Every orbit you specify has all 6 Kepler
 | Tool | Command Example | What It Does |
 |------|----------------|-------------|
 | **trajectory.py** | `python shared/tools/trajectory.py hohmann Earth Mars` | Hohmann transfers, delta-v budgets, orbit parameters |
-| **plot.py** | `python shared/tools/plot.py hohmann-plot --from Earth --to Mars` | Hohmann transfer orbit visualization |
-| **timeline.py** | `python shared/tools/timeline.py plan --mission LEO-SAR --duration-years 5` | Mission phase timeline with milestones |
-| **timeline.py** | `python shared/tools/timeline.py gantt --mission LEO-SAR` | Gantt chart for mission phases |
+| **plot.py** | `python shared/tools/plot.py hohmann-plot Earth Mars` | Hohmann transfer orbit visualization |
+| **timeline.py** | `python shared/tools/timeline.py plan --launch-date 2027-03-15 --destination Mars` | Mission phase timeline with milestones |
+| **timeline.py** | `python shared/tools/timeline.py gantt --launch-date 2027-03-15 --destination Mars` | Gantt chart for mission phases |
 | *All formulas* | — | Additional calculations use formulas embedded in this SKILL.md |
 
 ### Shared Data
