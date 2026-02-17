@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Space Engineering Pack — Live Solar System</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;600&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #060a14;
+  color: #e2e8f0;
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+  height: 100vh;
+  cursor: default;
+  user-select: none;
+}
+
+canvas { display: block; }
+
+/* HUD overlay */
+#hud {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none; z-index: 10;
+}
+
+#title {
+  position: fixed; top: 20px; left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(1rem, 2.5vw, 1.6rem);
+  font-weight: 700; letter-spacing: 2px;
+  background: linear-gradient(90deg, #06b6d4, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  z-index: 20; pointer-events: none;
+  text-align: center;
+}
+#title .sub {
+  display: block;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem; font-weight: 400;
+  letter-spacing: 1px;
+  -webkit-text-fill-color: #64748b;
+  margin-top: 4px;
+}
+
+/* Instructions */
+#instructions {
+  position: fixed; bottom: 20px; left: 50%;
+  transform: translateX(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem; color: #475569;
+  z-index: 20; pointer-events: none;
+  text-align: center;
+  transition: opacity 0.5s;
+}
+
+/* Data panel */
+#panel {
+  position: fixed; top: 80px; right: 20px;
+  width: 300px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  padding: 20px;
+  z-index: 20; pointer-events: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  opacity: 0;
+  transition: opacity 0.5s;
+  backdrop-filter: blur(10px);
+}
+#panel.visible { opacity: 1; }
+#panel h3 {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.9rem; font-weight: 700;
+  color: #06b6d4;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+.data-row {
+  display: flex; justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(30, 41, 59, 0.5);
+}
+.data-row .label { color: #64748b; }
+.data-row .value { color: #e2e8f0; font-weight: 500; }
+.data-row .value.cyan { color: #06b6d4; }
+.data-row .value.green { color: #10b981; }
+.data-row .value.orange { color: #f59e0b; }
+
+#progress-bar {
+  width: 100%; height: 4px;
+  background: #1e293b;
+  border-radius: 2px;
+  margin-top: 12px;
+  overflow: hidden;
+}
+#progress-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, #06b6d4, #8b5cf6);
+  border-radius: 2px;
+  transition: width 0.1s;
+}
+
+/* Speed control */
+#speed-control {
+  position: fixed; bottom: 60px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex; align-items: center; gap: 10px;
+  pointer-events: all;
+}
+#speed-control label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem; color: #475569;
+}
+#speed-slider {
+  width: 150px; accent-color: #06b6d4;
+  cursor: pointer;
+}
+#speed-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem; color: #06b6d4;
+  min-width: 30px;
+}
+
+/* Planet tooltip */
+#tooltip {
+  position: fixed;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid #1e293b;
+  border-radius: 8px;
+  padding: 10px 14px;
+  z-index: 30;
+  pointer-events: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+  backdrop-filter: blur(10px);
+}
+#tooltip.visible { opacity: 1; }
+#tooltip .name {
+  font-family: 'Orbitron', monospace;
+  font-weight: 700; font-size: 0.85rem;
+  margin-bottom: 4px;
+}
+
+/* GitHub badge */
+#gh-badge {
+  position: fixed; top: 20px; right: 20px;
+  z-index: 20; pointer-events: all;
+}
+#gh-badge a {
+  color: #475569; text-decoration: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  border: 1px solid #1e293b;
+  padding: 6px 12px; border-radius: 6px;
+  transition: all 0.3s;
+  display: inline-block;
+}
+#gh-badge a:hover { color: #06b6d4; border-color: #06b6d4; }
+
+/* Credits */
+#credits {
+  position: fixed; bottom: 20px; right: 20px;
+  z-index: 20; pointer-events: none;
+  font-size: 0.6rem; color: #334155;
+  text-align: right; line-height: 1.5;
+}
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<div id="title">
+  SPACE ENGINEERING PACK
+  <span class="sub">Click a planet to depart &middot; Click another to fly</span>
+</div>
+
+<div id="panel">
+  <h3 id="panel-title">HOHMANN TRANSFER</h3>
+  <div id="panel-body"></div>
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+</div>
+
+<div id="tooltip"></div>
+
+<div id="speed-control">
+  <label>TIME WARP</label>
+  <input type="range" id="speed-slider" min="1" max="50" value="10">
+  <span id="speed-val">10x</span>
+</div>
+
+<div id="instructions">
+  Click any planet to select departure &middot; Scroll to zoom &middot; Drag to pan
+</div>
+
+<div id="gh-badge">
+  <a href="https://github.com/devideamax/aerospace-team" target="_blank">v1.1.0 &middot; GitHub</a>
+</div>
+
+<div id="credits">
+  IDEAMAX Skills Factory<br>
+  Dimitar Georgiev &mdash; Biko
+</div>
+
+<script>
+// ============================================================
+// CONSTANTS
+// ============================================================
+const MU_SUN = 1.32712440018e20; // m^3/s^2
+const AU = 1.496e11; // meters
+const DAY = 86400;
+
+// ============================================================
+// PLANETS — real orbital data
+// ============================================================
+const planets = [
+  { name: 'Mercury', a_au: 0.387, period: 87.97,  r: 4,  color: '#94a3b8', mu: 2.2e13 },
+  { name: 'Venus',   a_au: 0.723, period: 224.7,  r: 7,  color: '#f59e0b', mu: 3.25e14 },
+  { name: 'Earth',   a_au: 1.000, period: 365.25, r: 8,  color: '#3b82f6', mu: 3.99e14 },
+  { name: 'Mars',    a_au: 1.524, period: 687.0,  r: 6,  color: '#ef4444', mu: 4.28e13 },
+  { name: 'Jupiter', a_au: 5.203, period: 4332.6, r: 16, color: '#d97706', mu: 1.27e17 },
+  { name: 'Saturn',  a_au: 9.537, period: 10759,  r: 14, color: '#d4a574', mu: 3.79e16 },
+  { name: 'Uranus',  a_au: 19.19, period: 30687,  r: 10, color: '#06b6d4', mu: 5.79e15 },
+  { name: 'Neptune', a_au: 30.07, period: 60190,  r: 10, color: '#6366f1', mu: 6.84e15 },
+];
+
+// State
+let time = 0; // days elapsed
+let speedMul = 10;
+let camera = { x: 0, y: 0, zoom: 1 };
+let departure = null;
+let destination = null;
+let spacecraft = null;
+let hoveredPlanet = null;
+let dragging = false;
+let dragStart = { x: 0, y: 0 };
+let mouseX = 0, mouseY = 0;
+
+// ============================================================
+// CANVAS SETUP
+// ============================================================
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+// ============================================================
+// COORDINATE TRANSFORMS
+// ============================================================
+function auToScreen(au_x, au_y) {
+  const baseScale = Math.min(canvas.width, canvas.height) / 12;
+  const scale = baseScale * camera.zoom;
+  return {
+    x: canvas.width / 2 + (au_x - camera.x) * scale,
+    y: canvas.height / 2 + (au_y - camera.y) * scale
+  };
+}
+
+function screenToAu(sx, sy) {
+  const baseScale = Math.min(canvas.width, canvas.height) / 12;
+  const scale = baseScale * camera.zoom;
+  return {
+    x: (sx - canvas.width / 2) / scale + camera.x,
+    y: (sy - canvas.height / 2) / scale + camera.y
+  };
+}
+
+// ============================================================
+// PLANET POSITION
+// ============================================================
+function planetPos(p, t) {
+  const angle = (2 * Math.PI * t) / p.period;
+  return {
+    x: p.a_au * Math.cos(angle),
+    y: p.a_au * Math.sin(angle)
+  };
+}
+
+// ============================================================
+// HOHMANN CALCULATION
+// ============================================================
+function hohmann(from, to) {
+  const r1 = from.a_au * AU;
+  const r2 = to.a_au * AU;
+  const a_t = (r1 + r2) / 2;
+  const T = Math.PI * Math.sqrt(a_t * a_t * a_t / MU_SUN);
+  const v1 = Math.sqrt(MU_SUN / r1);
+  const vt1 = Math.sqrt(MU_SUN * (2 / r1 - 1 / a_t));
+  const v2 = Math.sqrt(MU_SUN / r2);
+  const vt2 = Math.sqrt(MU_SUN * (2 / r2 - 1 / a_t));
+  return {
+    dv_dep: Math.abs(vt1 - v1) / 1000,
+    dv_arr: Math.abs(v2 - vt2) / 1000,
+    dv_total: (Math.abs(vt1 - v1) + Math.abs(v2 - vt2)) / 1000,
+    time_days: T / DAY,
+    a_t_au: (from.a_au + to.a_au) / 2,
+    r1_au: from.a_au,
+    r2_au: to.a_au,
+  };
+}
+
+// ============================================================
+// SPACECRAFT
+// ============================================================
+function launchSpacecraft(from, to, t) {
+  const h = hohmann(from, to);
+  const fromPos = planetPos(from, t);
+  const startAngle = Math.atan2(fromPos.y, fromPos.x);
+
+  const rMin = Math.min(from.a_au, to.a_au);
+  const rMax = Math.max(from.a_au, to.a_au);
+  const a_t = (rMin + rMax) / 2;
+  const b_t = Math.sqrt(rMin * rMax);
+  const c = a_t - rMin;
+  const outward = to.a_au > from.a_au;
+
+  return {
+    from, to, h,
+    startTime: t,
+    duration: h.time_days,
+    startAngle,
+    a_t, b_t, c,
+    outward,
+    progress: 0,
+    arrived: false,
+    trail: [],
+  };
+}
+
+function updateSpacecraft(sc, t) {
+  const elapsed = t - sc.startTime;
+  sc.progress = Math.min(elapsed / sc.duration, 1);
+
+  // Position along transfer ellipse
+  const angle = sc.progress * Math.PI;
+  const localX = sc.a_t * Math.cos(angle) - sc.c;
+  const localY = sc.b_t * Math.sin(angle) * (sc.outward ? 1 : -1);
+
+  // Rotate to departure angle
+  const cos = Math.cos(sc.startAngle);
+  const sin = Math.sin(sc.startAngle);
+  sc.x = localX * cos - localY * sin;
+  sc.y = localX * sin + localY * cos;
+
+  // Trail
+  if (sc.trail.length === 0 || Math.hypot(sc.x - sc.trail[sc.trail.length-1].x, sc.y - sc.trail[sc.trail.length-1].y) > 0.02) {
+    sc.trail.push({ x: sc.x, y: sc.y, t: sc.progress });
+  }
+
+  if (sc.progress >= 1 && !sc.arrived) {
+    sc.arrived = true;
+  }
+}
+
+// ============================================================
+// STARFIELD
+// ============================================================
+const stars = [];
+for (let i = 0; i < 500; i++) {
+  stars.push({
+    x: Math.random() * 2 - 1,
+    y: Math.random() * 2 - 1,
+    r: Math.random() * 1.2 + 0.2,
+    phase: Math.random() * Math.PI * 2,
+    speed: Math.random() * 0.01 + 0.003,
+  });
+}
+
+function drawStars() {
+  stars.forEach(s => {
+    s.phase += s.speed;
+    const alpha = 0.15 + 0.35 * Math.abs(Math.sin(s.phase));
+    const sx = ((s.x + 1) / 2) * canvas.width;
+    const sy = ((s.y + 1) / 2) * canvas.height;
+    ctx.beginPath();
+    ctx.arc(sx, sy, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(180, 200, 230, ${alpha})`;
+    ctx.fill();
+  });
+}
+
+// ============================================================
+// DRAW
+// ============================================================
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Stars
+  drawStars();
+
+  // Orbit paths
+  planets.forEach(p => {
+    const steps = Math.max(100, Math.round(p.a_au * 40));
+    ctx.beginPath();
+    for (let i = 0; i <= steps; i++) {
+      const angle = (2 * Math.PI * i) / steps;
+      const px = p.a_au * Math.cos(angle);
+      const py = p.a_au * Math.sin(angle);
+      const s = auToScreen(px, py);
+      if (i === 0) ctx.moveTo(s.x, s.y); else ctx.lineTo(s.x, s.y);
+    }
+    ctx.closePath();
+    const isSelected = (p === departure || p === destination);
+    ctx.strokeStyle = isSelected ? p.color + '60' : p.color + '20';
+    ctx.lineWidth = isSelected ? 1.5 : 0.5;
+    ctx.stroke();
+  });
+
+  // Transfer ellipse preview (if departure selected, show for hovered)
+  if (departure && hoveredPlanet && hoveredPlanet !== departure) {
+    drawTransferPreview(departure, hoveredPlanet);
+  }
+
+  // Spacecraft trail
+  if (spacecraft && spacecraft.trail.length > 1) {
+    for (let i = 1; i < spacecraft.trail.length; i++) {
+      const t0 = spacecraft.trail[i-1];
+      const t1 = spacecraft.trail[i];
+      const s0 = auToScreen(t0.x, t0.y);
+      const s1 = auToScreen(t1.x, t1.y);
+      const alpha = 0.1 + t1.t * 0.6;
+      ctx.beginPath();
+      ctx.moveTo(s0.x, s0.y);
+      ctx.lineTo(s1.x, s1.y);
+      ctx.strokeStyle = `rgba(16, 185, 129, ${alpha})`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  }
+
+  // Spacecraft
+  if (spacecraft && !spacecraft.arrived) {
+    const ss = auToScreen(spacecraft.x, spacecraft.y);
+    // Glow
+    const grd = ctx.createRadialGradient(ss.x, ss.y, 0, ss.x, ss.y, 15);
+    grd.addColorStop(0, 'rgba(255,255,255,0.8)');
+    grd.addColorStop(0.3, 'rgba(6,182,212,0.4)');
+    grd.addColorStop(1, 'rgba(6,182,212,0)');
+    ctx.fillStyle = grd;
+    ctx.fillRect(ss.x - 15, ss.y - 15, 30, 30);
+    // Dot
+    ctx.beginPath();
+    ctx.arc(ss.x, ss.y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+  }
+
+  // Planets
+  planets.forEach(p => {
+    const pos = planetPos(p, time);
+    const s = auToScreen(pos.x, pos.y);
+    const isSelected = (p === departure || p === destination);
+    const isHovered = (p === hoveredPlanet);
+    const displayR = Math.max(p.r * Math.sqrt(camera.zoom) * 0.7, 3);
+
+    // Selection ring
+    if (isSelected) {
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, displayR + 6, 0, Math.PI * 2);
+      ctx.strokeStyle = p.color;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([3, 3]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // Hover ring
+    if (isHovered) {
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, displayR + 10, 0, Math.PI * 2);
+      ctx.strokeStyle = p.color + '40';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    // Planet body
+    const grd = ctx.createRadialGradient(s.x - displayR * 0.3, s.y - displayR * 0.3, 0, s.x, s.y, displayR);
+    grd.addColorStop(0, p.color);
+    grd.addColorStop(1, p.color + '80');
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, displayR, 0, Math.PI * 2);
+    ctx.fillStyle = grd;
+    ctx.fill();
+
+    // Saturn ring
+    if (p.name === 'Saturn') {
+      ctx.beginPath();
+      ctx.ellipse(s.x, s.y, displayR * 2, displayR * 0.5, -0.3, 0, Math.PI * 2);
+      ctx.strokeStyle = p.color + '60';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    // Label
+    ctx.fillStyle = isHovered ? '#f1f5f9' : '#64748b';
+    ctx.font = `${isHovered ? '600' : '400'} ${isHovered ? 11 : 9}px 'Inter', sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(p.name, s.x, s.y + displayR + 14);
+  });
+
+  // Sun
+  const sun = auToScreen(0, 0);
+  const sunR = 12 * Math.sqrt(camera.zoom) * 0.7;
+  const sunGrd = ctx.createRadialGradient(sun.x, sun.y, 0, sun.x, sun.y, sunR * 3);
+  sunGrd.addColorStop(0, 'rgba(255, 215, 0, 0.9)');
+  sunGrd.addColorStop(0.3, 'rgba(255, 165, 0, 0.3)');
+  sunGrd.addColorStop(1, 'rgba(255, 165, 0, 0)');
+  ctx.fillStyle = sunGrd;
+  ctx.beginPath();
+  ctx.arc(sun.x, sun.y, sunR * 3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(sun.x, sun.y, sunR, 0, Math.PI * 2);
+  ctx.fillStyle = '#FFD700';
+  ctx.fill();
+}
+
+function drawTransferPreview(from, to) {
+  const rMin = Math.min(from.a_au, to.a_au);
+  const rMax = Math.max(from.a_au, to.a_au);
+  const a_t = (rMin + rMax) / 2;
+  const b_t = Math.sqrt(rMin * rMax);
+  const c = a_t - rMin;
+
+  const fromPos = planetPos(from, time);
+  const startAngle = Math.atan2(fromPos.y, fromPos.x);
+  const outward = to.a_au > from.a_au;
+
+  ctx.beginPath();
+  for (let i = 0; i <= 60; i++) {
+    const frac = i / 60;
+    const angle = frac * Math.PI;
+    const localX = a_t * Math.cos(angle) - c;
+    const localY = b_t * Math.sin(angle) * (outward ? 1 : -1);
+    const cos = Math.cos(startAngle);
+    const sin = Math.sin(startAngle);
+    const wx = localX * cos - localY * sin;
+    const wy = localX * sin + localY * cos;
+    const s = auToScreen(wx, wy);
+    if (i === 0) ctx.moveTo(s.x, s.y); else ctx.lineTo(s.x, s.y);
+  }
+  ctx.strokeStyle = 'rgba(16, 185, 129, 0.3)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([6, 4]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+// ============================================================
+// UPDATE PANEL
+// ============================================================
+function updatePanel() {
+  const panel = document.getElementById('panel');
+  const body = document.getElementById('panel-body');
+  const title = document.getElementById('panel-title');
+  const fill = document.getElementById('progress-fill');
+
+  if (!spacecraft) {
+    if (departure && !destination) {
+      panel.classList.add('visible');
+      title.textContent = departure.name.toUpperCase() + ' SELECTED';
+      title.style.color = departure.color;
+      body.innerHTML = `
+        <div class="data-row"><span class="label">Orbit</span><span class="value">${departure.a_au} AU</span></div>
+        <div class="data-row"><span class="label">Period</span><span class="value">${departure.period.toFixed(0)} days</span></div>
+        <div class="data-row"><span class="label">Status</span><span class="value cyan">Awaiting destination...</span></div>
+      `;
+      fill.style.width = '0%';
+    } else {
+      panel.classList.remove('visible');
+    }
+    return;
+  }
+
+  panel.classList.add('visible');
+  const h = spacecraft.h;
+  const pct = (spacecraft.progress * 100).toFixed(1);
+  fill.style.width = pct + '%';
+
+  if (spacecraft.arrived) {
+    title.textContent = 'ARRIVED';
+    title.style.color = '#10b981';
+    body.innerHTML = `
+      <div class="data-row"><span class="label">Mission</span><span class="value">${spacecraft.from.name} → ${spacecraft.to.name}</span></div>
+      <div class="data-row"><span class="label">Δv departure</span><span class="value cyan">${h.dv_dep.toFixed(2)} km/s</span></div>
+      <div class="data-row"><span class="label">Δv arrival</span><span class="value orange">${h.dv_arr.toFixed(2)} km/s</span></div>
+      <div class="data-row"><span class="label">Δv total</span><span class="value green">${h.dv_total.toFixed(2)} km/s</span></div>
+      <div class="data-row"><span class="label">Transfer time</span><span class="value">${h.time_days.toFixed(0)} days</span></div>
+      <div class="data-row"><span class="label">Status</span><span class="value green">ORBIT INSERTION COMPLETE</span></div>
+    `;
+  } else {
+    title.textContent = 'IN TRANSIT';
+    title.style.color = '#06b6d4';
+    const elapsed = (spacecraft.progress * h.time_days).toFixed(0);
+    const remaining = ((1 - spacecraft.progress) * h.time_days).toFixed(0);
+    body.innerHTML = `
+      <div class="data-row"><span class="label">Mission</span><span class="value">${spacecraft.from.name} → ${spacecraft.to.name}</span></div>
+      <div class="data-row"><span class="label">Δv total</span><span class="value cyan">${h.dv_total.toFixed(2)} km/s</span></div>
+      <div class="data-row"><span class="label">Progress</span><span class="value green">${pct}%</span></div>
+      <div class="data-row"><span class="label">Day</span><span class="value">${elapsed} / ${h.time_days.toFixed(0)}</span></div>
+      <div class="data-row"><span class="label">Remaining</span><span class="value orange">${remaining} days</span></div>
+      <div class="data-row"><span class="label">Distance</span><span class="value">${Math.hypot(spacecraft.x, spacecraft.y).toFixed(2)} AU</span></div>
+    `;
+  }
+}
+
+// ============================================================
+// TOOLTIP
+// ============================================================
+function updateTooltip() {
+  const tip = document.getElementById('tooltip');
+  if (!hoveredPlanet) { tip.classList.remove('visible'); return; }
+
+  const p = hoveredPlanet;
+  let extra = '';
+  if (departure && p !== departure) {
+    const h = hohmann(departure, p);
+    extra = `
+      <div style="margin-top:6px; padding-top:6px; border-top:1px solid #1e293b; color:#10b981;">
+        Δv: ${h.dv_total.toFixed(2)} km/s &middot; ${h.time_days.toFixed(0)} days
+      </div>
+    `;
+  }
+
+  tip.innerHTML = `
+    <div class="name" style="color:${p.color}">${p.name}</div>
+    <div style="color:#64748b">${p.a_au} AU &middot; ${p.period.toFixed(0)} day orbit</div>
+    ${extra}
+  `;
+  tip.style.left = (mouseX + 20) + 'px';
+  tip.style.top = (mouseY - 10) + 'px';
+  tip.classList.add('visible');
+}
+
+// ============================================================
+// HIT TEST
+// ============================================================
+function hitTest(mx, my) {
+  let closest = null;
+  let closestDist = Infinity;
+  planets.forEach(p => {
+    const pos = planetPos(p, time);
+    const s = auToScreen(pos.x, pos.y);
+    const dist = Math.hypot(mx - s.x, my - s.y);
+    const hitR = Math.max(p.r * Math.sqrt(camera.zoom) * 0.7, 3) + 15;
+    if (dist < hitR && dist < closestDist) {
+      closest = p;
+      closestDist = dist;
+    }
+  });
+  return closest;
+}
+
+// ============================================================
+// EVENTS
+// ============================================================
+canvas.addEventListener('mousemove', e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+
+  if (dragging) {
+    const baseScale = Math.min(canvas.width, canvas.height) / 12 * camera.zoom;
+    camera.x -= (e.clientX - dragStart.x) / baseScale;
+    camera.y -= (e.clientY - dragStart.y) / baseScale;
+    dragStart.x = e.clientX;
+    dragStart.y = e.clientY;
+    canvas.style.cursor = 'grabbing';
+    return;
+  }
+
+  hoveredPlanet = hitTest(e.clientX, e.clientY);
+  canvas.style.cursor = hoveredPlanet ? 'pointer' : 'default';
+  updateTooltip();
+});
+
+canvas.addEventListener('mousedown', e => {
+  if (e.button === 0) {
+    const hit = hitTest(e.clientX, e.clientY);
+    if (hit) {
+      if (!departure) {
+        departure = hit;
+        destination = null;
+        spacecraft = null;
+        document.getElementById('instructions').textContent = `${hit.name} selected — now click destination`;
+      } else if (hit !== departure) {
+        destination = hit;
+        spacecraft = launchSpacecraft(departure, destination, time);
+        document.getElementById('instructions').style.opacity = '0';
+      } else {
+        // Clicked same planet — deselect
+        departure = null;
+        destination = null;
+        spacecraft = null;
+        document.getElementById('instructions').textContent = 'Click any planet to select departure · Scroll to zoom · Drag to pan';
+        document.getElementById('instructions').style.opacity = '1';
+      }
+    } else {
+      dragging = true;
+      dragStart.x = e.clientX;
+      dragStart.y = e.clientY;
+    }
+  }
+});
+
+canvas.addEventListener('mouseup', () => { dragging = false; canvas.style.cursor = 'default'; });
+canvas.addEventListener('mouseleave', () => { dragging = false; hoveredPlanet = null; updateTooltip(); });
+
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const factor = e.deltaY < 0 ? 1.1 : 0.9;
+  camera.zoom = Math.max(0.1, Math.min(20, camera.zoom * factor));
+}, { passive: false });
+
+// Speed slider
+const slider = document.getElementById('speed-slider');
+const speedVal = document.getElementById('speed-val');
+slider.addEventListener('input', () => {
+  speedMul = parseInt(slider.value);
+  speedVal.textContent = speedMul + 'x';
+});
+
+// Double click to reset
+canvas.addEventListener('dblclick', () => {
+  camera = { x: 0, y: 0, zoom: 1 };
+  departure = null;
+  destination = null;
+  spacecraft = null;
+  document.getElementById('instructions').textContent = 'Click any planet to select departure · Scroll to zoom · Drag to pan';
+  document.getElementById('instructions').style.opacity = '1';
+});
+
+// ============================================================
+// ANIMATION LOOP
+// ============================================================
+let lastTs = 0;
+function animate(ts) {
+  const dt = lastTs ? (ts - lastTs) / 1000 : 0;
+  lastTs = ts;
+
+  // Advance time
+  time += dt * speedMul;
+
+  // Update spacecraft
+  if (spacecraft && !spacecraft.arrived) {
+    updateSpacecraft(spacecraft, time);
+  }
+
+  draw();
+  updatePanel();
+  requestAnimationFrame(animate);
+}
+
+requestAnimationFrame(animate);
+</script>
+</body>
+</html>
