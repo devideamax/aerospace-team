@@ -36,6 +36,8 @@ WALL_DENSITY_CFRP = 1600       # kg/m³
 
 def tank_sizing(propellant_kg, fuel_type, diameter_m, wall_material="aluminum", wall_thickness_mm=3):
     """Calculate tank dimensions for given propellant mass and diameter."""
+    if propellant_kg <= 0:
+        return {"error": f"Propellant mass must be > 0 kg (got {propellant_kg})"}
     combo = COMBINATIONS.get(fuel_type.lower())
     if not combo:
         return {"error": f"Unknown fuel type. Available: {list(COMBINATIONS.keys())}"}
@@ -177,6 +179,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.command == "tank":
         result = tank_sizing(args.propellant_kg, args.fuel, args.diameter, args.wall)
+        if "error" in result:
+            print(json.dumps(result, indent=2, ensure_ascii=False))
+            sys.exit(1)
     elif args.command == "fairing":
         result = fairing_check(args.payload_diameter, args.payload_height)
     elif args.command == "vehicle-size":

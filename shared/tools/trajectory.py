@@ -62,8 +62,14 @@ def tsiolkovsky(isp, m_initial, m_final):
 
 def inverse_tsiolkovsky(isp, delta_v_kms, m_payload, structural_fraction=0.08):
     """Given delta-v and payload, find required propellant and stage masses."""
+    if m_payload <= 0:
+        return {"error": "Payload must be > 0 kg"}
     dv = delta_v_kms * 1000
     mass_ratio = math.exp(dv / (isp * G0))
+    # Check feasibility against structural limit
+    max_mass_ratio = 1 / structural_fraction
+    if mass_ratio > max_mass_ratio:
+        return {"error": f"Infeasible: required mass ratio {mass_ratio:.2f} exceeds structural limit {max_mass_ratio:.2f}"}
     # m_initial / m_final = mass_ratio
     # m_initial = m_structure + m_propellant + m_payload
     # m_final = m_structure + m_payload
@@ -103,6 +109,10 @@ def inverse_tsiolkovsky(isp, delta_v_kms, m_payload, structural_fraction=0.08):
 
 def hohmann_transfer(planet_from, planet_to):
     """Calculate Hohmann transfer delta-v between two planets."""
+    planet_from = planet_from.title()
+    planet_to = planet_to.title()
+    if planet_from == planet_to:
+        return {"error": "Same planet — no transfer needed"}
     if planet_from not in PLANETS or planet_to not in PLANETS:
         return {"error": f"Unknown planet. Available: {list(PLANETS.keys())}"}
     r1 = PLANETS[planet_from]["a_au"] * AU_KM
@@ -225,8 +235,14 @@ if __name__ == "__main__":
         result = tsiolkovsky(args.isp, args.mass_initial, args.mass_final)
     elif args.command == "inverse":
         result = inverse_tsiolkovsky(args.isp, args.delta_v, args.payload, args.structural_fraction)
+        if "error" in result:
+            print(json.dumps(result, indent=2, ensure_ascii=False))
+            sys.exit(1)
     elif args.command == "hohmann":
         result = hohmann_transfer(args.planet_from, args.planet_to)
+        if "error" in result:
+            print(json.dumps(result, indent=2, ensure_ascii=False))
+            sys.exit(1)
     elif args.command == "gravity-loss":
         result = gravity_loss(args.twr, args.burn_time)
     elif args.command == "delta-v-budget":

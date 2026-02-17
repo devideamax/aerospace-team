@@ -111,7 +111,14 @@ def vehicle_cost(glow_tonnes, stages, reusable=False, flights_per_year=10):
     }
 
 
+KNOWN_ORBITS = ["LEO", "GTO", "GEO"]
+
+
 def launch_cost(payload_kg, orbit="LEO", vehicle=None):
+    if payload_kg <= 0:
+        return {"error": f"Payload must be > 0 kg (got {payload_kg})"}
+    if orbit.upper() not in KNOWN_ORBITS:
+        return {"error": f"Unknown orbit '{orbit}'. Available: {KNOWN_ORBITS}"}
     if vehicle:
         v = VEHICLES.get(vehicle.lower().replace(" ", "_").replace("-", "_"))
         if not v:
@@ -191,6 +198,9 @@ if __name__ == "__main__":
         result = vehicle_cost(args.glow_tonnes, args.stages, args.reusable, args.flights_per_year)
     elif args.command == "launch":
         result = launch_cost(args.payload_kg, args.orbit, args.vehicle)
+        if "error" in result:
+            print(json.dumps(result, indent=2, ensure_ascii=False))
+            sys.exit(1)
     elif args.command == "compare":
         result = compare_vehicles(args.vehicles)
     else:
