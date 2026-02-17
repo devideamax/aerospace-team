@@ -85,6 +85,7 @@ When you trigger this skill, I'll work with whatever you give me — but the mor
 |------|----------------|-------------|
 | **geometry.py** | `python shared/tools/geometry.py tank --propellant-kg 5000 --fuel lox-rp1 --diameter 3.66` | Tank sizing, fairing fit check, vehicle geometry |
 | **cost_estimator.py** | `python shared/tools/cost_estimator.py launch --payload-kg 500 --orbit LEO` | TRANSCOST launch costs, vehicle comparison |
+| **plot.py** | `python shared/tools/plot.py trade-matrix --vehicles falcon9 starship` | Vehicle comparison heatmap |
 | *All formulas* | — | Additional calculations use formulas embedded in this SKILL.md |
 
 ### Shared Data (in `shared/` — pack-level)

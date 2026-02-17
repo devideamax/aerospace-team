@@ -84,6 +84,9 @@ When you trigger this skill, I'll work with whatever you give me — but the mor
 | **trajectory.py** | `python shared/tools/trajectory.py hohmann Earth Mars` | Hohmann transfers, delta-v budgets, orbit parameters |
 | **cost_estimator.py** | `python shared/tools/cost_estimator.py launch --payload-kg 500 --orbit LEO` | TRANSCOST launch costs, vehicle comparison |
 | **geometry.py** | `python shared/tools/geometry.py tank --propellant-kg 5000 --fuel lox-rp1 --diameter 3.66` | Tank sizing, fairing fit check, vehicle geometry |
+| **staging.py** | `python shared/tools/staging.py optimize --payload-kg 5000 --orbit LEO --stages 2` | Staging optimization, mass ratio splits, payload fraction |
+| **plot.py** | `python shared/tools/plot.py delta-v-waterfall --mission LEO-to-Mars` | Delta-v waterfall chart for mission legs |
+| **plot.py** | `python shared/tools/plot.py trade-matrix --vehicles falcon9 starship` | Vehicle comparison heatmap |
 | *All formulas* | — | Additional calculations use formulas embedded in this SKILL.md |
 
 ### Shared Data (in `shared/` — pack-level)

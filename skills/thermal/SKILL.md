@@ -80,6 +80,13 @@ When you trigger this skill, I'll work with whatever you give me — but the mor
 
 ## 4. CONNECTORS
 
+### Shared Tools (in `shared/tools/`)
+
+| Tool | Command Example | What It Does |
+|------|----------------|-------------|
+| **plot.py** | `python shared/tools/plot.py trade-matrix --vehicles falcon9 starship` | Vehicle comparison heatmap |
+| *All formulas* | — | Additional calculations use formulas embedded in this SKILL.md |
+
 ### Shared Data (in `shared/` — pack-level)
 
 | File | Contents | Refresh |

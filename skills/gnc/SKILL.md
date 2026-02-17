@@ -88,6 +88,7 @@ When you trigger this skill, I'll work with whatever you give me — but the mor
 | Tool | Command Example | What It Does |
 |------|----------------|-------------|
 | **trajectory.py** | `python shared/tools/trajectory.py hohmann Earth Mars` | Hohmann transfers, delta-v budgets, orbit parameters |
+| **plot.py** | `python shared/tools/plot.py trade-matrix --vehicles falcon9 starship` | Vehicle comparison heatmap |
 | *All formulas* | — | Additional calculations use formulas embedded in this SKILL.md |
 
 ### Shared Data (in `shared/` — pack-level)
