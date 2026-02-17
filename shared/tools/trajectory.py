@@ -37,6 +37,14 @@ PLANETS = {
     "Mars":    {"a_au": 1.524, "mu": 42828},
     "Jupiter": {"a_au": 5.203, "mu": 126687000},
     "Saturn":  {"a_au": 9.537, "mu": 37931000},
+    "Uranus":  {"a_au": 19.19, "mu": 5794000},
+    "Neptune": {"a_au": 30.07, "mu": 6836500},
+}
+
+MOONS = {
+    "Moon":   {"parent": "Earth",   "a_km": 384400,  "mu": 4902.8,  "approx_dv_capture_kms": 0.8},
+    "Titan":  {"parent": "Saturn",  "a_km": 1221870, "mu": 8978.1,  "approx_dv_capture_kms": 1.5},
+    "Europa": {"parent": "Jupiter", "a_km": 671100,  "mu": 3203.4,  "approx_dv_capture_kms": 1.8},
 }
 
 MU_SUN = 1.327e11  # km³/s², Sun's gravitational parameter
@@ -108,15 +116,29 @@ def inverse_tsiolkovsky(isp, delta_v_kms, m_payload, structural_fraction=0.08):
 
 
 def hohmann_transfer(planet_from, planet_to):
-    """Calculate Hohmann transfer delta-v between two planets."""
+    """Calculate Hohmann transfer delta-v between two planets (or to a moon)."""
     planet_from = planet_from.title()
     planet_to = planet_to.title()
     if planet_from == planet_to:
         return {"error": "Same planet — no transfer needed"}
-    if planet_from not in PLANETS or planet_to not in PLANETS:
-        return {"error": f"Unknown planet. Available: {list(PLANETS.keys())}"}
+
+    # Check if destination is a moon
+    moon_note = None
+    actual_to = planet_to
+    if planet_to in MOONS:
+        moon = MOONS[planet_to]
+        actual_to = moon["parent"]
+        moon_note = (f"Final leg to {planet_to} requires patched-conic analysis. "
+                     f"Approximate additional delta-v: {moon['approx_dv_capture_kms']} km/s for capture/descent.")
+    if planet_from in MOONS:
+        moon = MOONS[planet_from]
+        planet_from = moon["parent"]
+
+    if planet_from not in PLANETS or actual_to not in PLANETS:
+        available = list(PLANETS.keys()) + list(MOONS.keys())
+        return {"error": f"Unknown body. Available: {available}"}
     r1 = PLANETS[planet_from]["a_au"] * AU_KM
-    r2 = PLANETS[planet_to]["a_au"] * AU_KM
+    r2 = PLANETS[actual_to]["a_au"] * AU_KM
     if r1 > r2:
         r1, r2 = r2, r1
     # Transfer orbit semi-major axis
@@ -130,7 +152,7 @@ def hohmann_transfer(planet_from, planet_to):
     dv2 = abs(v_circular_2 - v_arrival)
     # Transfer time
     t_transfer = math.pi * math.sqrt(a_transfer**3 / MU_SUN)
-    return {
+    result = {
         "from": planet_from,
         "to": planet_to,
         "delta_v_departure_kms": round(dv1, 2),
@@ -140,6 +162,9 @@ def hohmann_transfer(planet_from, planet_to):
         "transfer_time_months": round(t_transfer / (86400 * 30.44), 1),
         "note": "Heliocentric delta-v only. Add planet escape/capture for full budget.",
     }
+    if moon_note:
+        result["moon_note"] = moon_note
+    return result
 
 
 def gravity_loss(twr, burn_time_s):
